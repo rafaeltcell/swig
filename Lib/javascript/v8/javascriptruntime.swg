@@ -43,7 +43,7 @@
 
 #ifdef BUILDING_NODE_EXTENSION
 %insert("runtime") %{
-#include <node.h>
+#include <nan.h>
 %}
 #endif
 
