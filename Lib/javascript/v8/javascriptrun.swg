@@ -478,10 +478,17 @@ public:
 SWIGRUNTIMEINLINE
 int SwigV8Packed_Check(v8::Handle<v8::Value> valRef) {
   SWIGV8_HANDLESCOPE();
-  
+
   v8::Handle<v8::Object> objRef = valRef->ToObject();
   if(objRef->InternalFieldCount() < 1) return false;
-  v8::Handle<v8::Value> flag = objRef->GetHiddenValue(SWIGV8_STRING_NEW("__swig__packed_data__"));
+
+  Nan::MaybeLocal<v8::Value> flag_maybe = Nan::GetPrivate(objRef, SWIGV8_STRING_NEW("__swig__packed_data__"));
+  if (flag_maybe.IsEmpty())
+  {
+    return false;
+  }
+  v8::Local<v8::Value> flag = flag_maybe.ToLocalChecked();
+
   return (flag->IsBoolean() && flag->BooleanValue());
 }
 
@@ -489,7 +496,7 @@ SWIGRUNTIME
 swig_type_info *SwigV8Packed_UnpackData(v8::Handle<v8::Value> valRef, void *ptr, size_t size) {
   if (SwigV8Packed_Check(valRef)) {
     SWIGV8_HANDLESCOPE();
-    
+
     SwigV8PackedData *sobj;
 
     v8::Handle<v8::Object> objRef = valRef->ToObject();
@@ -561,10 +568,9 @@ v8::Handle<v8::Value> SWIGV8_NewPackedObj(void *data, size_t size, swig_type_inf
   SWIGV8_HANDLESCOPE_ESC();
 
   SwigV8PackedData *cdata = new SwigV8PackedData(data, size, type);
-//  v8::Handle<v8::Object> obj = SWIGV8_OBJECT_NEW();
   v8::Local<v8::Object> obj = SWIGV8_OBJECT_NEW();
 
-  obj->SetHiddenValue(SWIGV8_STRING_NEW("__swig__packed_data__"), SWIGV8_BOOLEAN_NEW(true));
+  Nan::SetPrivate(obj, SWIGV8_STRING_NEW("__swig__packed_data__"), SWIGV8_BOOLEAN_NEW(true));
 
 #if (V8_MAJOR_VERSION-0) < 4 && (SWIG_V8_VERSION < 0x031511)
   obj->SetPointerInInternalField(0, cdata);
