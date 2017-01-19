@@ -7,21 +7,29 @@ SWIG_V8_SetModule(void *, swig_module_info *swig_module) {
   v8::Local<v8::Object> global_obj = SWIGV8_CURRENT_CONTEXT()->Global();
   v8::Local<v8::External> mod = SWIGV8_EXTERNAL_NEW(swig_module);
   assert(!mod.IsEmpty());
-  global_obj->SetHiddenValue(SWIGV8_STRING_NEW("swig_module_info_data"), mod);
+  Nan::SetPrivate(global_obj, SWIGV8_STRING_NEW("swig_module_info_data"), mod);
 }
 
 SWIGRUNTIME swig_module_info *
 SWIG_V8_GetModule(void *) {
   v8::Local<v8::Object> global_obj = SWIGV8_CURRENT_CONTEXT()->Global();
-  v8::Local<v8::Value> moduleinfo = global_obj->GetHiddenValue(SWIGV8_STRING_NEW("swig_module_info_data"));
-
-  if (moduleinfo.IsEmpty())
-  {
+  Nan::Maybe<bool> has_private = Nan::HasPrivate(global_obj, SWIGV8_STRING_NEW("swig_module_info_data"));
+  if (has_private.IsNothing() || !has_private.FromJust()) {
     // It's not yet loaded
     return 0;
   }
 
-  v8::Local<v8::External> moduleinfo_extern = v8::Local<v8::External>::Cast(moduleinfo);
+
+
+  Nan::MaybeLocal<v8::Value> moduleinfo_maybe = Nan::GetPrivate(global_obj, SWIGV8_STRING_NEW("swig_module_info_data"));
+
+  if (moduleinfo_maybe.IsEmpty())
+  {
+    // Something's not right
+    return 0;
+  }
+
+  v8::Local<v8::External> moduleinfo_extern = v8::Local<v8::External>::Cast(moduleinfo_maybe.ToLocalChecked());
 
   if (moduleinfo_extern.IsEmpty())
   {
