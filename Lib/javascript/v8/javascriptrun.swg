@@ -479,7 +479,7 @@ SWIGRUNTIMEINLINE
 int SwigV8Packed_Check(v8::Handle<v8::Value> valRef) {
   SWIGV8_HANDLESCOPE();
 
-  v8::Handle<v8::Object> objRef = valRef->ToObject();
+  v8::Local<v8::Object> objRef = valRef->ToObject();
   if(objRef->InternalFieldCount() < 1) return false;
 
   Nan::MaybeLocal<v8::Value> flag_maybe = Nan::GetPrivate(objRef, SWIGV8_STRING_NEW("__swig__packed_data__"));
@@ -570,7 +570,7 @@ v8::Handle<v8::Value> SWIGV8_NewPackedObj(void *data, size_t size, swig_type_inf
   SwigV8PackedData *cdata = new SwigV8PackedData(data, size, type);
   v8::Local<v8::Object> obj = SWIGV8_OBJECT_NEW();
 
-  Nan::SetPrivate(obj, SWIGV8_STRING_NEW("__swig__packed_data__"), SWIGV8_BOOLEAN_NEW(true));
+  Nan::SetPrivate(obj, SWIGV8_STRING_NEW("__swig__packed_data__"), Nan::True());
 
 #if (V8_MAJOR_VERSION-0) < 4 && (SWIG_V8_VERSION < 0x031511)
   obj->SetPointerInInternalField(0, cdata);
